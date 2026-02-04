@@ -29,7 +29,7 @@ if (process.env.NODE_ENV === 'development') {
 
 export async function getDatabase(): Promise<Db> {
   const client = await clientPromise
-  return client.db('annika_moltbook')
+  return client.db('r1n_moltbook')  // Same database as Annika agent
 }
 
 export async function verifyMoltbookUser(username: string): Promise<{
