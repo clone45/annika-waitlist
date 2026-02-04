@@ -52,7 +52,7 @@ export async function verifyMoltbookUser(username: string): Promise<{
   const cleanUsername = username.replace(/^@/, '')
 
   try {
-    const response = await fetch(`${MOLTBOOK_BASE_URL}/agents/by-name/${cleanUsername}`, {
+    const response = await fetch(`${MOLTBOOK_BASE_URL}/agents/${cleanUsername}`, {
       headers: {
         'Authorization': `Bearer ${MOLTBOOK_API_KEY}`,
         'Content-Type': 'application/json'
