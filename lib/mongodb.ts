@@ -1,8 +1,9 @@
 import { MongoClient, Db } from 'mongodb'
 
 const MONGODB_URI = process.env.MONGODB_URI
-const MOLTBOOK_API_KEY = process.env.MOLTBOOK_API_KEY
-const MOLTBOOK_BASE_URL = 'https://www.moltbook.com/api/v1'
+// Note: Moltbook doesn't have a public agent lookup API, so verification is skipped for now
+// const MOLTBOOK_API_KEY = process.env.MOLTBOOK_API_KEY
+// const MOLTBOOK_BASE_URL = 'https://www.moltbook.com/api/v1'
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable')
@@ -42,48 +43,16 @@ export async function verifyMoltbookUser(username: string): Promise<{
   }
   error?: string
 }> {
-  if (!MOLTBOOK_API_KEY) {
-    // If no API key, skip verification but warn
-    console.warn('MOLTBOOK_API_KEY not set, skipping verification')
-    return { valid: true }
-  }
-
-  // Remove @ prefix if present
+  // Moltbook doesn't have a public endpoint for looking up agents by name
+  // Just accept the username for now - verification can be added later
+  // if Moltbook adds such an endpoint
   const cleanUsername = username.replace(/^@/, '')
 
-  try {
-    const response = await fetch(`${MOLTBOOK_BASE_URL}/agents/${cleanUsername}`, {
-      headers: {
-        'Authorization': `Bearer ${MOLTBOOK_API_KEY}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return { valid: false, error: 'Agent not found on Moltbook' }
-      }
-      return { valid: false, error: `Moltbook API error: ${response.status}` }
+  return {
+    valid: true,
+    agent: {
+      id: 'pending',
+      name: cleanUsername
     }
-
-    const data = await response.json()
-    const agent = data.agent
-
-    if (!agent) {
-      return { valid: false, error: 'Agent not found on Moltbook' }
-    }
-
-    return {
-      valid: true,
-      agent: {
-        id: agent.id,
-        name: agent.name,
-        bio: agent.bio,
-        karma: agent.karma
-      }
-    }
-  } catch (error) {
-    console.error('Error verifying Moltbook user:', error)
-    return { valid: false, error: 'Failed to verify with Moltbook' }
   }
 }
